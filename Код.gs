@@ -149,7 +149,15 @@ return getObjects(values)
     }
     return true;
 }
-
+const getListObjects=(ssId)=>{
+const ss=SpreadsheetApp.openById(ssId)
+var result = getNamedRanges(ssId);
+return Object.keys(result).filter(el=>{
+var note=ss.getRangeByName(el).getNote()
+return isJSON(note)?JSON.parse(note).hasOwnProperty("description"):false;
+}).map(el=>[el,getRanges({topCell:getTopCell({ name: result[el], ss:ss })})['dataRange'].getA1Notation()]);
+ 
+}
 
 const getParametrsByNameRange_=(topCell)=>toObject( transpose_(getValues_(getRangeTopCellTwoColumns_(topCell))))
 
@@ -250,7 +258,7 @@ exports.version = version;
 exports.CONFIG = CONFIG;
 exports.calculateIntersection=calculateIntersection;
 exports.getNamedRanges=getNamedRanges;
-
+exports.getListObjects=getListObjects;
 
 
 
