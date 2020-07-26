@@ -136,6 +136,21 @@ return getObjects(values)
                               return array.map((values) => { return keys.reduce((o, k, i) => { o[k] = values[i]; return o }, {}) })
 };
 
+ function isJSON(MyTestStr){
+    try {
+        var MyJSON = JSON.stringify(MyTestStr);
+        var json = JSON.parse(MyJSON);
+        if(typeof(MyTestStr) == 'string')
+            if(MyTestStr.length == 0)
+                return false;
+    }
+    catch(e){
+        return false;
+    }
+    return true;
+}
+
+
 const getParametrsByNameRange_=(topCell)=>toObject( transpose_(getValues_(getRangeTopCellTwoColumns_(topCell))))
 
 //Функции для импорта
@@ -190,6 +205,34 @@ function calculateIntersection(rgObj) {
     return oA//Utilities.formatString('Intersecting Cells: %s', oA.join(', '));
   }
 } 
+
+//https://gist.github.com/tanaikech/aa744c9a15818c002d90eaea6b4efd03
+function getNamedRanges(spreadsheetId) {
+    var ss = SpreadsheetApp.openById(spreadsheetId);
+    var sheetIdToName = {};
+    ss.getSheets().forEach(function(e) {
+        sheetIdToName[e.getSheetId()] = e.getSheetName();
+    });
+    var result = {};
+    Sheets.Spreadsheets.get(spreadsheetId, {fields: "namedRanges"})
+        .namedRanges.forEach(function(e) {
+            var sheetName = sheetIdToName[e.range.sheetId.toString()];
+            var a1notation = ss.getSheetByName(sheetName).getRange(
+                e.range.startRowIndex + 1,
+                e.range.startColumnIndex + 1,
+                e.range.endRowIndex - e.range.startRowIndex,
+                e.range.endColumnIndex - e.range.startColumnIndex
+            ).getA1Notation();
+            result[e.name] = sheetName + "!" + a1notation;
+        });
+    return result;
+}
+function mainGetNamedRanges() {
+    var spreadsheetId = "### spreadsheet ID ###";
+    var result = getNamedRanges(spreadsheetId);
+    Logger.log(JSON.stringify(result));
+}
+
 exports.R=R;
 exports.match=match;
 exports.getA1Nots=getA1Nots;
@@ -206,7 +249,7 @@ exports.getColumnIndexTopCell=getColumnIndexTopCell_;
 exports.version = version;
 exports.CONFIG = CONFIG;
 exports.calculateIntersection=calculateIntersection;
-
+exports.getNamedRanges=getNamedRanges;
 
 
 
