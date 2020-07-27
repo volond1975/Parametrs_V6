@@ -155,7 +155,10 @@ var result = getNamedRanges(ssId);
 return Object.keys(result).filter(el=>{
 var note=ss.getRangeByName(el).getNote()
 return isJSON(note)?JSON.parse(note).hasOwnProperty("description"):false;
-}).map(el=>[el,getRanges({topCell:getTopCell({ name: result[el], ss:ss })})['dataRange'].getA1Notation()]);
+}).map(el=>{
+const topCell=getTopCell({ name: result[el], ss:ss });
+const sheeetName=topCell.getSheet().getName();
+return [el,sheeetName,getRanges({topCell:topCell})['dataRange'].getA1Notation()]});
  
 }
 
@@ -240,9 +243,12 @@ function mainGetNamedRanges() {
     var result = getNamedRanges(spreadsheetId);
     Logger.log(JSON.stringify(result));
 }
-
+ const getIntersection=match(/\((.*)\)/) 
+ const NoLabel=R.complement(match(/.*_label/))
 exports.R=R;
 exports.match=match;
+exports.NoLabel=NoLabel
+exports.getIntersection=getIntersection
 exports.getA1Nots=getA1Nots;
 exports.toObject=toObject;
 exports.getTopCell=getTopCell;
